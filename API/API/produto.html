@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Produto Simples</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+
+<body>
+
+    <nav class="navbar navbar-dark bg-dark text-white">
+        <h1>O melhor produto para você</h1>
+    </nav>
+
+    <div class="container mt-5">
+
+        <div id="produto" class="row"></div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Fetch data  -->
+    <script>
+        // A linha abaixo diz que assim que o "documento" (a página) for totalmente carregado, deve ser executada a função  
+        document.addEventListener('DOMContentLoaded', function () {
+
+
+            // A linha abaixo apenas define o id do produto chamado. 
+
+            const url_data = new URLSearchParams(window.location.search);
+
+            const productId = url_data.get('produto_id');
+
+            //Utilizando o método fetch para consumir a API
+            fetch(`https://fakestoreapi.com/products/${productId}`)
+                .then(response => response.json())
+                .then(data => displayProduct(data));
+        });
+
+        function displayProduct(product) {
+
+            // Escolho a div que será alimentada com o produto. 
+            const productContainer = document.getElementById('produto');
+
+            // Crio um div. 
+            // Criar != Adicionar. 
+            const card = document.createElement('div');
+
+            // Adiciono algumas classes do bootstrap
+            card.classList.add('col-md-6', 'mx-auto');
+
+            // Coloco todo o conteúdo vinda da API dentro da div que acabei de criar. 
+            //Você pode experimentar colocar alguns "console.log" para experimentar qual conteúdo está sendo recebido ou exibido. 
+            card.innerHTML = `
+                <div class="card">
+                    <img src="${product.image}" class="card-img-top" alt="${product.title}">
+                    <div class="card-body">
+                        <h5 class="card-title">${product.title}</h5>
+                        <p class="card-text">${product.description}</p>
+                        <p class="card-text"><strong>$${product.price}</strong></p>
+                        <a href="checkout.html?produto_id=${product.id}"> <button class="btn btn-primary">Comprar</button> </a>
+                    </div>
+                </div>
+            `;
+
+            //  Adicionar a div criada ao productContainer.
+            productContainer.appendChild(card);
+        }
+    </script>
+</body>
+
+</html>

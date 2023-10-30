@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <nav class="navbar navbar-dark bg-dark text-white">
+        <h1>Checkout</h1>
+    </nav>
+
+    <div class="container mt-5">
+
+        <!-- Product Information -->
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Informações do produto</h3>
+                <div id="product-info"></div>
+            </div>
+
+            <!-- Address Information -->
+            <div class="col-md-6">
+                <h3>Informações do endereço</h3>
+                <div id="address-info">
+                    <div class="mb-3">
+                        <label for="cepInput" class="form-label">Enter CEP:</label>
+                        <input type="text" class="form-control" id="cepInput" placeholder="12345-678">
+                    </div>
+                    <button class="btn btn-primary" id="fetchAddressBtn">Buscar Cep</button>
+                    <div id="addressResult" class="mt-3"></div>
+                    <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+                        <a href="finalizado.html" class="text-white"> Finalizar compra</a>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const url_data = new URLSearchParams(window.location.search);
+
+            const productId = url_data.get('produto_id');
+
+            fetch(`https://fakestoreapi.com/products/${productId}`)
+                .then(response => response.json())
+                .then(data => displayProductInfo(data));
+        });
+
+        function displayProductInfo(product) {
+            const productInfoContainer = document.getElementById('product-info');
+
+            const card = document.createElement('div');
+            card.classList.add('card');
+
+            card.innerHTML = `
+                <img src="${product.image}" class="card-img-top" alt="${product.title}">
+                <div class="card-body">c
+                    <h5 class="card-title">${product.title}</h5>
+                    <p class="card-text">${product.description}</p>
+                    <p class="card-text"><strong>$${product.price}</strong></p>
+                </div>
+            `;
+
+            productInfoContainer.appendChild(card);
+        }
+
+        // Adicionar um EventListener para o botão
+        const fetchAddressBtn = document.getElementById('fetchAddressBtn');
+        const cepInput = document.getElementById('cepInput');
+        const addressResult = document.getElementById('addressResult');
+
+        fetchAddressBtn.addEventListener('click', function () {
+            const cep = cepInput.value;
+            if (cep.length !== 8) {
+                addressResult.textContent = 'CEP inválido. Certifique-se de inserir 8 dígitos.';
+                return;
+            }
+
+            // Faz a solicitação para a API ViaCEP
+            fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.erro) {
+                        addressResult.textContent = 'CEP não encontrado. Certifique-se de que o CEP seja válido.';
+                    } else {
+                        // Exibe os dados do endereço
+                        addressResult.innerHTML = `
+                            <p><strong>CEP:</strong> ${data.cep}</p>
+                            <p><strong>Logradouro:</strong> ${data.logradouro}</p>
+                            <p><strong>Bairro:</strong> ${data.bairro}</p>
+                            <p><strong>Cidade:</strong> ${data.localidade}</p>
+                            <p><strong>Estado:</strong> ${data.uf}</p>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    addressResult.textContent = 'Erro ao buscar informações de endereço. Tente novamente mais tarde.';
+                });
+        });
+    </script>
+</body>
+
+</html>
